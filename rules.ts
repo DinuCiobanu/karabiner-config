@@ -1,11 +1,22 @@
 import fs from "fs";
-import { KarabinerRules } from "./types";
+import { From, KarabinerRules, KeyCode, To } from "./types";
 import { createHyperSubLayers, app, open, window, shell } from "./utils";
 
+type BtnToValue = [To["modifiers"], KeyCode];
+
+function btnToBtn(obj: Partial<Record<KeyCode, BtnToValue>>) {
+  return Object.entries(obj).reduce((acc, [from, to]) => {
+    const [modifiers, key_code] = to;
+    acc[from as KeyCode] = {
+      to: [{ key_code: key_code as KeyCode, ...(modifiers && { modifiers }) }],
+    };
+    return acc;
+  }, {} as Partial<Record<KeyCode, { to: To[] }>>);
+}
 const rules: KarabinerRules[] = [
   // Define the Hyper key itself
   {
-    description: "Hyper Key (⌃⌥⇧⌘)",
+    description: "Hyper Key (⌃⌥⌘)",
     manipulators: [
       {
         description: "Caps Lock -> Hyper Key",
@@ -56,175 +67,203 @@ const rules: KarabinerRules[] = [
     ],
   },
   ...createHyperSubLayers({
-    spacebar: app("Terminal"),
-    f: app("Alfred 5"),
-    s: {
-      description: "Option",
-      to: [
-        {
-          key_code: "left_option",
-        },
-      ],
-    },
-    d: {
-      description: "Command",
-      to: [
-        {
-          key_code: "left_command",
-        },
-      ],
-    },
-    e: {
-      description: "Window: Next Tab",
-      to: [
-        {
-          key_code: "close_bracket",
-          modifiers: ["right_command", "right_shift"],
-        },
-      ],
-    },
-    w: {
-      description: "Run: homerow app",
-      to: [
-        {
-          key_code: "spacebar",
-          modifiers: ["right_option"],
-        },
-      ],
-    },
-    v: {
-      description: "Run: alfred clipboars manager",
-      to: [
-        {
-          key_code: "v",
-          modifiers: ["right_command", "right_option"],
-        },
-      ],
-    },
-    h: {
-      to: [{ key_code: "left_arrow" }],
-    },
-    j: {
-      to: [{ key_code: "down_arrow" }],
-    },
-    k: {
-      to: [{ key_code: "up_arrow" }],
-    },
-    l: {
-      to: [{ key_code: "right_arrow" }],
-    },
-    semicolon: {
-      to: [
-        {
-          key_code: "return_or_enter",
-        },
-      ],
-    },
-    quote: {
-      to: [
-        {
-          key_code: "delete_or_backspace",
-        },
-      ],
-    },
-    backslash: {
-      to: [
-        {
-          key_code: "delete_forward",
-        },
-      ],
-    },
-    u: {
-      to: [
-        {
-          key_code: "z",
-          modifiers: ["right_command"],
-        },
-      ],
-    },
-    slash: {
-      to: [
-        {
-          key_code: "slash",
-          modifiers: ["left_shift"],
-        },
-      ],
-    },
+    // spacebar: app("Terminal"),
+    // f: app("Alfred 5"),
+    // s: {
+    //   description: "Option",
+    //   to: [
+    //     {
+    //       key_code: "left_option",
+    //     },
+    //   ],
+    // },
+    // d: {
+    //   description: "Command",
+    //   to: [
+    //     {
+    //       key_code: "left_command",
+    //     },
+    //   ],
+    // },
+    // e: {
+    //   description: "Window: Next Tab",
+    //   to: [
+    //     {
+    //       key_code: "close_bracket",
+    //       modifiers: ["right_command", "right_shift"],
+    //     },
+    //   ],
+    // },
+    // w: {
+    //   description: "Run: homerow app",
+    //   to: [
+    //     {
+    //       key_code: "spacebar",
+    //       modifiers: ["right_option"],
+    //     },
+    //   ],
+    // },
+    // v: {
+    //   description: "Run: alfred clipboars manager",
+    //   to: [
+    //     {
+    //       key_code: "v",
+    //       modifiers: ["right_command", "right_option"],
+    //     },
+    //   ],
+    // },
+
+    ...btnToBtn({
+      8: [["right_command"], "delete_or_backspace"],
+      //
+      u: [["right_option"], "left_arrow"],
+      i: [["right_option"], "delete_or_backspace"],
+      o: [[], "delete_or_backspace"],
+      //
+      h: [[], "left_arrow"],
+      j: [[], "down_arrow"],
+      k: [[], "up_arrow"],
+      l: [[], "right_arrow"],
+      //
+      n: [["right_command"], "z"],
+      //
+      spacebar: [[], "return_or_enter"],
+    }),
+
+    w: btnToBtn({
+      u: [[], "1"],
+      i: [[], "2"],
+      o: [[], "3"],
+      //
+      h: [[], "0"],
+      j: [[], "4"],
+      k: [[], "5"],
+      l: [[], "6"],
+      //
+      m: [[], "7"],
+      comma: [[], "8"],
+      period: [[], "9"],
+    }),
+
+    f: btnToBtn({
+      u: [[], "equal_sign"],
+      i: [["shift"], "equal_sign"],
+      // o: [[], "3"],
+      //
+      h: [["shift"], "0"],
+      j: [["shift"], "9"],
+      k: [["shift"], "open_bracket"],
+      // k: [[], "5"],
+      // l: [[], "6"],
+      // //
+      // m: [[], "7"],
+      // comma: [[], "8"],
+      // period: [[], "9"],
+    }),
+
+    left_shift: btnToBtn({
+      //
+      n: [["right_command", "right_shift"], "z"],
+      //
+    }),
+    // backslash: {
+    //   to: [
+    //     {
+    //       key_code: "delete_forward",
+    //     },
+    //   ],
+    // },
+    // u: {
+    //   to: [
+    //     {
+    //       key_code: "z",
+    //       modifiers: ["right_command"],
+    //     },
+    //   ],
+    // },
+    // slash: {
+    //   to: [
+    //     {
+    //       key_code: "slash",
+    //       modifiers: ["left_shift"],
+    //     },
+    //   ],
+    // },
     // w = "Window"
-    z: {
-      semicolon: {
-        description: "Window: Hide",
-        to: [
-          {
-            key_code: "h",
-            modifiers: ["right_command"],
-          },
-        ],
-      },
-      y: {
-        description: "Window: Prev window",
-        to: [
-          {
-            key_code: "grave_accent_and_tilde",
-            modifiers: ["right_command", "left_shift"],
-          },
-        ],
-      },
-      o: {
-        description: "Window: Next window",
-        to: [
-          {
-            key_code: "grave_accent_and_tilde",
-            modifiers: ["right_command"],
-          },
-        ],
-      },
-      k: window("top-half"),
-      j: window("bottomÔ-half"),
-      h: window("left-half"),
-      l: window("right-half"),
-      f: window("maximize"),
-      n: {
-        to: [{ key_code: "j", modifiers: ["right_command", "right_shift"] }],
-      },
-      // i: {
-      //   description: "Window: Next Tab",
-      //   to: [
-      //     {
-      //       key_code: "tab",
-      //       modifiers: ["right_control"],
-      //     },
-      //   ],
-      // },
-      // n: {
-      //   description: "Window: Next Window",
-      //   to: [
-      //     {
-      //       key_code: "grave_accent_and_tilde",
-      //       modifiers: ["right_command"],
-      //     },
-      //   ],
-      // },
-      // b: {
-      //   description: "Window: Back",
-      //   to: [
-      //     {
-      //       key_code: "open_bracket",
-      //       modifiers: ["right_command"],
-      //     },
-      //   ],
-      // },
-      // // Note: No literal connection. Both f and n are already taken.
-      // m: {
-      //   description: "Window: Forward",
-      //   to: [
-      //     {
-      //       key_code: "close_bracket",
-      //       modifiers: ["right_command"],
-      //     },
-      //   ],
-      // },
-    },
+    // z: {
+    //   semicolon: {
+    //     description: "Window: Hide",
+    //     to: [
+    //       {
+    //         key_code: "h",
+    //         modifiers: ["right_command"],
+    //       },
+    //     ],
+    //   },
+    //   y: {
+    //     description: "Window: Prev window",
+    //     to: [
+    //       {
+    //         key_code: "grave_accent_and_tilde",
+    //         modifiers: ["right_command", "left_shift"],
+    //       },
+    //     ],
+    //   },
+    //   o: {
+    //     description: "Window: Next window",
+    //     to: [
+    //       {
+    //         key_code: "grave_accent_and_tilde",
+    //         modifiers: ["right_command"],
+    //       },
+    //     ],
+    //   },
+    //   k: window("top-half"),
+    //   j: window("bottomÔ-half"),
+    //   h: window("left-half"),
+    //   l: window("right-half"),
+    //   f: window("maximize"),
+    //   n: {
+    //     to: [{ key_code: "j", modifiers: ["right_command", "right_shift"] }],
+    //   },
+    //   // i: {
+    //   //   description: "Window: Next Tab",
+    //   //   to: [
+    //   //     {
+    //   //       key_code: "tab",
+    //   //       modifiers: ["right_control"],
+    //   //     },
+    //   //   ],
+    //   // },
+    //   // n: {
+    //   //   description: "Window: Next Window",
+    //   //   to: [
+    //   //     {
+    //   //       key_code: "grave_accent_and_tilde",
+    //   //       modifiers: ["right_command"],
+    //   //     },
+    //   //   ],
+    //   // },
+    //   // b: {
+    //   //   description: "Window: Back",
+    //   //   to: [
+    //   //     {
+    //   //       key_code: "open_bracket",
+    //   //       modifiers: ["right_command"],
+    //   //     },
+    //   //   ],
+    //   // },
+    //   // // Note: No literal connection. Both f and n are already taken.
+    //   // m: {
+    //   //   description: "Window: Forward",
+    //   //   to: [
+    //   //     {
+    //   //       key_code: "close_bracket",
+    //   //       modifiers: ["right_command"],
+    //   //     },
+    //   //   ],
+    //   // },
+    // },
 
     // s = "System"
     // x: {
