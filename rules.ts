@@ -2,13 +2,16 @@ import fs from "fs";
 import { From, KarabinerRules, KeyCode, To } from "./types";
 import { createHyperSubLayers, app, open, window, shell } from "./utils";
 
-type BtnToValue = [To["modifiers"], KeyCode];
+type BtnToValue = [To["modifiers"], KeyCode[]];
 
-function btnToBtn(obj: Partial<Record<KeyCode, BtnToValue>>) {
+function keyToSequence(obj: Partial<Record<KeyCode, BtnToValue>>) {
   return Object.entries(obj).reduce((acc, [from, to]) => {
-    const [modifiers, key_code] = to;
+    const [modifiers, key_codes] = to;
     acc[from as KeyCode] = {
-      to: [{ key_code: key_code as KeyCode, ...(modifiers && { modifiers }) }],
+      to: key_codes.map((key_code) => ({
+        key_code,
+        ...(modifiers && { modifiers }),
+      })),
     };
     return acc;
   }, {} as Partial<Record<KeyCode, { to: To[] }>>);
@@ -113,57 +116,58 @@ const rules: KarabinerRules[] = [
     //   ],
     // },
 
-    ...btnToBtn({
-      8: [["right_command"], "delete_or_backspace"],
+    ...keyToSequence({
+      8: [["right_command"], ["delete_or_backspace"]],
       //
-      u: [["right_option"], "left_arrow"],
-      i: [["right_option"], "delete_or_backspace"],
-      o: [[], "delete_or_backspace"],
+      u: [["right_option"], ["left_arrow"]],
+      i: [["right_option"], ["delete_or_backspace"]],
+      o: [[], ["delete_or_backspace"]],
       //
-      h: [[], "left_arrow"],
-      j: [[], "down_arrow"],
-      k: [[], "up_arrow"],
-      l: [[], "right_arrow"],
+      h: [[], ["left_arrow"]],
+      j: [[], ["down_arrow"]],
+      k: [[], ["up_arrow"]],
+      l: [[], ["right_arrow"]],
       //
-      n: [["right_command"], "z"],
+      n: [["right_command"], ["z"]],
       //
-      spacebar: [[], "return_or_enter"],
+      spacebar: [[], ["return_or_enter"]],
+      g: [[], ["down_arrow", "return_or_enter"]],
     }),
 
-    w: btnToBtn({
-      u: [[], "1"],
-      i: [[], "2"],
-      o: [[], "3"],
+    w: keyToSequence({
+      u: [[], ["1"]],
+      i: [[], ["2"]],
+      o: [[], ["3"]],
       //
-      h: [[], "0"],
-      j: [[], "4"],
-      k: [[], "5"],
-      l: [[], "6"],
+      h: [[], ["0"]],
+      j: [[], ["4"]],
+      k: [[], ["5"]],
+      l: [[], ["6"]],
       //
-      m: [[], "7"],
-      comma: [[], "8"],
-      period: [[], "9"],
+      m: [[], ["7"]],
+      comma: [[], ["8"]],
+      period: [[], ["9"]],
     }),
 
-    f: btnToBtn({
-      u: [[], "equal_sign"],
-      i: [["shift"], "equal_sign"],
-      // o: [[], "3"],
+    f: keyToSequence({
+      u: [[], ["equal_sign"]],
+      i: [["shift"], ["equal_sign"]],
+      // o: [[], ["3"]],
       //
-      h: [["shift"], "0"],
-      j: [["shift"], "9"],
-      k: [["shift"], "open_bracket"],
-      // k: [[], "5"],
-      // l: [[], "6"],
+      h: [["shift"], ["0"]],
+      j: [["shift"], ["9"]],
+      k: [["shift"], ["open_bracket"]],
+      // k: [[], ["5"]],
+      // l: [[], ["6"]],
       // //
-      // m: [[], "7"],
-      // comma: [[], "8"],
-      // period: [[], "9"],
+      // m: [[], ["7"]],
+      // comma: [[], ["8"]],
+      // period: [[], ["9"]],
     }),
 
-    left_shift: btnToBtn({
+    left_shift: keyToSequence({
       //
-      n: [["right_command", "right_shift"], "z"],
+      n: [["right_command", "right_shift"], ["z"]],
       //
     }),
     // backslash: {
